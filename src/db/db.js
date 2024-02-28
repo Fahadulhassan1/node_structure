@@ -1,10 +1,11 @@
 var mongoose = require("mongoose");
-const mongoAtlasUri = `mongodb://localhost:27017/basic`;
+require("dotenv").config();
+dbUrl = process.env.MONGODB_URI;
 function mongooseConnection() {
   try {
     // Connect to the MongoDB cluster
     mongoose.connect(
-      mongoAtlasUri,
+      dbUrl,
       { useNewUrlParser: true, useUnifiedTopology: true },
       () => console.log("Mongoose is connected")
     );

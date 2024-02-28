@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const config = require("./config/config");
 const mongooseConnection = require("./db/db");
+require("dotenv").config();
 
 const app = express();
 
@@ -15,6 +15,6 @@ app.use("/api", routes);
 mongooseConnection();
 
 // Start the server
-app.listen(config.port, () => {
-  console.log(`Server is running on port ${config.port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
 });

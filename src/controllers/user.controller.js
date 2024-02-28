@@ -21,7 +21,6 @@ exports.saveUser = async (req, res) => {
     const newExample = await userService.saveUsers(userName, email, password);
     res.json(newExample);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: error });
   }
 };
