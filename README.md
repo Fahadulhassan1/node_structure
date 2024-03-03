@@ -5,5 +5,6 @@
    we define routes in routes.js
 
 2. to run the project
+   npm i(to install all the dependencies)
    npm run start
    because in package.json we define start that it should run command on start
