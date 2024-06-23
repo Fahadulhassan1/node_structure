@@ -5,12 +5,9 @@ const productService = require("../services/product.service")
 
 exports.getProducts = async (req, res) => {
     try {
-        const productName = req.query.productName;
-        const price = req.query.price;
-        const productDescription = req.query.productDescription;
-        const stock = req.query.stock;
+        const {productName, price, productDescription, stock, categoryId} = req.query;
 
-        const products = await productService.getProducts(productName, price, productDescription, stock)
+        const products = await productService.getProducts(productName, price, productDescription, stock, categoryId)
         if(!products){
             return res.status(400).json({error : "Product not found."})
         }
@@ -40,12 +37,9 @@ exports.getProductByName = async(req, res) => {
 
 exports.getProductByQueryParameter = async (req, res) => {
     try {
-        const productName = req.query.productName;
-        const price = req.query.price;
-        const productDescription = req.query.productDescription;
-        const stock = req.query.stock;
+        const {productName, price, productDescription, stock, categoryId}   = req.query;
 
-        const product = await productService.getProductByQueryParameter(productName, price, productDescription, stock)
+        const product = await productService.getProductByQueryParameter(productName, price, productDescription, stock, categoryId)
         if(!product){
             return res.status(400).json({error : "Product not found."})
         }
@@ -55,12 +49,22 @@ exports.getProductByQueryParameter = async (req, res) => {
     }
 }
 
+exports.getProductById = async (req, res) =>{
+    try {
+        const productId = req.params.productId;
+        if(!productId){
+            return res.status(400).json({error : "Product Id not provided."})
+        }
+        const product = await productService.getProductById(productId)
+        res.status(200).json(product);
+    } catch (error) {
+        res.status(500).json({error : error})
+    }
+}
+
 exports.saveProducts = async(req , res) => {
     try {
-        const productName = req.body.productName;
-        const price = req.body.price;
-        const productDescription = req.body.productDescription;
-        const stock = req.body.stock
+        const {productName, price, productDescription, stock, categoryId} = req.body;
 
         if(!productName){
             return res.status(400).json({error: "Product Name not provided."})
@@ -74,8 +78,11 @@ exports.saveProducts = async(req , res) => {
         else if(!stock){
             return res.status(400).json({error: "Product Stock not provided."})
         }
+        else if(!categoryId){
+            return res.status(400).json({error: "categoryId not provided."})
+        }
 
-        const newProduct = await productService.saveProducts(productName , price, productDescription, stock)
+        const newProduct = await productService.saveProducts(productName , price, productDescription, stock, categoryId)
         res.status(200).json(newProduct);
     }
     catch (error) {
@@ -85,25 +92,28 @@ exports.saveProducts = async(req , res) => {
 
 exports.updateProducts = async (req , res) => {
     try {
-        const productName = req.body.productName
-        const price = req.body.price
-        const productDescription = req.body.productDescription
-        const stock = req.body.stock
+        const {productId, productName, price, productDescription, stock, categoryId} = req.body;
 
-        if(!productName){
-            return res.status(400).json({error: "Product Name not provided."})
+        if(!productId){
+            res.status(400).json({error: "Product ID not provided."})
+        }
+        else if(!productName){
+            res.status(400).json({error: "Product Name not provided."})
         }
         else if(!price){
-            return res.status(400).json({error: "Product Price not provided." })
+            res.status(400).json({error: "Product Price not provided." })
         }
         else if(!productDescription){
-            return res.status(400).json({error: "Product Description not provided." })
+            res.status(400).json({error: "Product Description not provided." })
         }
         else if(!stock){
-            return res.status(400).json({error: "Product Stock not provided."})
+            res.status(400).json({error: "Product Stock not provided."})
         }
-        const updatedProducts = await productService.updateProducts(productName , price, productDescription, stock)
-        res.status(200).json({message : "1 product updated successfully!!!"});
+        else if(!categoryId){
+            res.status(400).json({error: "Category Id not provided."})
+        }
+        const update = await productService.updateProducts(productId, productName , price, productDescription, stock, categoryId)
+        res.status(200).json({message : "1 product updated successfully!!!" , update : update});
     }catch (error){
         res.status(500).json({error : error})
     }
@@ -142,3 +152,12 @@ exports.deleteProducts = async (req , res) => {
         res.status(500).json({error : error})
     }
 } 
+
+exports.totalProducts = async (req, res) => {
+    try {
+        const products = await productService.totalProducts()
+        return res.status(200).json({TotalProducts : products});
+    } catch (error) {
+        res.status(500).json({error : error})
+    }
+}

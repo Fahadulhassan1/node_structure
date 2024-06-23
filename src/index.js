@@ -2,12 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const mongooseConnection = require("./db/db");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // // Define your routes here
 const routes = require("./routes/route");

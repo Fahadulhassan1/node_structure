@@ -1,6 +1,7 @@
 //import the required models
 const { log, error } = require("winston");
 const Product = require("../models/product.model")
+var ObjectId = require('mongodb').ObjectId;
 
 //Define your service methods
 exports.getProducts = async (productName, price, productDescription, stock) => {
@@ -82,17 +83,6 @@ exports.getProducts = async (productName, price, productDescription, stock) => {
     }
 }
 
-exports.saveProducts = async (productName , price, productDescription , stock) => 
-    {
-        const newProduct = new Product ({
-            productName : productName,
-            price : price,
-            productDescription : productDescription,
-            stock : stock,
-    });
-    return await newProduct.save();
-};
-
 exports.getProductByName = async(productName) => {
     const product = await Product.findOne({productName : productName});
     return product;
@@ -168,25 +158,51 @@ exports.getProductByQueryParameter = async (productName, price, productDescripti
     }
 }
 
-exports.updateProducts = async (productName, price , productDescription, stock) => {
-    try {const product = await this.getProductByName(productName);
+exports.saveProducts = async (productName , price, productDescription , stock, categoryId) => 
+    {
+        const newProduct = new Product ({
+            productName : productName,
+            price : price,
+            productDescription : productDescription,
+            stock : stock,
+            categoryId: categoryId,
+    });
+    return await newProduct.save();
+};
+
+exports.getProductById = async (productId) => {
+    try {
+        const product = await Product.findOne({_id : ObjectId(productId)})
+        if(!product){
+            throw({error : "Product not found."})
+        }
+        return product;
+    } catch (error) {
+        return error;
+    }
+}
+
+//update products APIs
+
+exports.updateProducts = async (productId, productName, price , productDescription, stock, categoryId) => {
+    try {
+        const product = await this.getProductById(productId);
         if (!product){
             throw({error : "Product not found."})
         }
 
-        const updatedProducts = await Product.findOneAndUpdate({ 
-            productName : productName , 
+        const updatedProducts = await Product.findByIdAndUpdate({ 
+            _id : ObjectId(productId),
+            productName : productName, 
             price : price , 
             productDescription : productDescription , 
-            stock : stock
+            stock : stock,
+            categoryId : categoryId
         })
-
         return updatedProducts;
-
     } catch (error){
         return error;
     }
-
 }
 
 exports.deleteProduct = async (productName) => {
@@ -203,4 +219,13 @@ exports.deleteProduct = async (productName) => {
         return error;
     }
 
+}
+
+exports.totalProducts = async () => {
+    try {
+        const products = await Product.count();
+        return products;
+    } catch (error) {
+        return error;
+    }
 }
